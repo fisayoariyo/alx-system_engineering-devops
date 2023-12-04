@@ -1,19 +1,63 @@
 #!/usr/bin/env bash
-#Configuring Nginx server to have a custom 404 page that contains the string
+# configuring an Nginx serverfor it to /redirect_me redirects to another page.
+# The redirection will configured as a "301 Moved Permanently"
+# Invlove a custom 404 page containing "Ceci n'est pas une page".
 
-sudo apt-get update
-sudo apt-get install -y nginx
+#  To update the package lists for available software packages.
+apt-get update
+# To install the Nginx web server.
+apt-get install -y nginx
 
-# codelines to redirect a specific endpoint (eg: redirect /redirect_me to https://fisayoariyo.github.io/)
-echo "Hello World!" | sudo tee /var/www/html/index.html
-string_for_replacement="server_name _;\n\trewrite ^\/redirect_me https:\/\/www.fisayoariyo.github.io permanent;"
-sudo sed -i "s/server_name _;/$string_for_replacement/" /etc/nginx/sites-enabled/default
+# To create the /etc/nginx/html directory, which serves as the document root directory for Nginx.
+mkdir /etc/nginx/html
+#  To create an empty index.html file inside the /etc/nginx/html directory.
+touch /etc/nginx/html/index.html
+#  To set content of the index.html file to "Hello World!" using the echo command.
+echo "Hello World!" > /etc/nginx/html/index.html
+# This will set  Nginx to listen on port 80 and serve files from the /etc/nginx/html directory.
+printf %s "server {
+     listen      80 default_server;
+     listen      [::]:80 default_server;
+     root        /etc/nginx/html;
+     index       index.html index.htm;
+}
+" > /etc/nginx/sites-available/default
 
-# codelines to create error page and add a redirect for error 404
+#  This create an empty file named 404.html inside the /etc/nginx/html directory.
+touch /etc/nginx/html/404.html
 
-echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html
-string_for_replacement="listen 80 default_server;\n\terror_page 404 \/404.html;\n\tlocation = \/404.html {\n\t\troot \/var\/www\/html;\n\t\tinternal;\n\t}"
-sudo sed -i "s/listen 80 default_server;/$string_for_replacement/" /etc/nginx/sites-enabled/default
+# This is to paste a 404 response in the 404.html file
+echo "Ceci n'est pas une page" | sudo tee /etc/nginx/html/404.html
 
-# restart the server
-sudo service nginx restart
+# This is to display script completion message
+echo "Nginx installation and configuration completed."
+
+# This is to create a configuration file for the redirection
+echo "server {
+    listen      80;
+    listen      [::]:80;
+    root        /etc/nginx/html;
+    index       index.html index.htm;
+
+    # Add index.php to the list if you are using PHP
+    index index.html index.htm index.nginx-debian.html;
+
+    location /redirect_me {
+        return 301 https://www.youtube.com/watch?v=5zx-rnQWQVE;
+    }
+
+    error_page 404 /404.html;
+    location /404 {
+      root /etc/nginx/html;
+      internal;
+    }
+
+}" | sudo tee /etc/nginx/sites-available/default
+
+# Enabling the new site configuration
+sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+
+# To test nginx configuration and reload
+sudo nginx -t
+sudo service nginx reload
+
