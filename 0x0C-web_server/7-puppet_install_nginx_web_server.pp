@@ -1,20 +1,41 @@
-# Script that will install nginx using puppet
-package {'nginx':
-  ensure => 'present',
-}
-exec {'install':
-  command  => 'sudo apt-get update ; sudo apt-get -y install nginx',
-  provider => shell,
-}
-exec {'Hello':
-  command  => 'echo "Hello World!" | sudo tee /var/www/html/index.html',
-  provider => shell,
-}
-exec {'sudo sed -i "s/listen 80 default_server;/listen 80 default_server;\\n\\tlocation \/redirect_me {\\n\\t\\treturn 301 https:\/\/fisayoariyo.github.io/\/;\\n\\t}/" /etc/nginx/sites-available/default':
-  provider => shell,
-}
+#!/usr/bin/env bash
+# Configure server using puppet
 
-exec {'run':
-  command  => 'sudo service nginx restart',
-  provider => shell,
+# defines a Puppet class called nginx_server that 
+#  encapsulates the configuration for the Nginx server.
+class nginx_server {
+  package { 'nginx':
+    ensure => installed,
+  }
+
+#  manages the Nginx service.
+  service { 'nginx':
+    ensure => running,
+    enable => true,
+    require => Package['nginx'],
+  }
+# manages the Nginx configuration file located at /etc/nginx/sites-available/default.
+  file { '/etc/nginx/sites-available/default':
+    ensure  => present,
+    content => "
+      server {
+        listen      80 default_server;
+        listen      [::]:80 default_server;
+        root        /var/www/html;
+        index       index.html index.htm;
+
+        location / {
+          return 200 'Hello World!';
+        }
+
+        location /redirect_me {
+          return 301 http://cuberule.com/;
+        }
+      }
+    ",
+    notify => Service['nginx'],
+  }
 }
+#  includes the nginx_server class, ensuring that it gets applied.
+include nginx_server
+
