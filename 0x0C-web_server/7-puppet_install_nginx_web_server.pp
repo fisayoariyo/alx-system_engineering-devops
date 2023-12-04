@@ -29,7 +29,7 @@ class nginx_server {
         }
 
         location /redirect_me {
-          return 301 http://cuberule.com/;
+          return 301 http://bestafz.tech/;
         }
       }
     ",
