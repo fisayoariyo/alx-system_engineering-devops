@@ -1,13 +1,16 @@
 #!/usr/bin/python3
-"""
-0-main
-"""
-import sys
+""" Prints the subscribers to subreddit """
+
+import requests
+
 
 def number_of_subscribers(subreddit):
-    if __name__ == '__main__':
-    number_of_subscribers = __import__('0-subs').number_of_subscribers
-    if len(sys.argv) < 2:
-        print("Please pass an argument for the subreddit to search.")
-    else:
-        print("{:d}".format(number_of_subscribers(sys.argv[1])))
+    """ Returns the number of subscribers """
+    headers = {'User-Agent': 'PPP/0.0.1'}
+    url = "https://www.reddit.com/r/{}/about.json".format(subreddit)
+    req = requests.get(url, headers=headers)
+    if req.status_code != 200:
+        return 0
+    js = req.json()
+
+    return js.get('data').get('subscribers')
