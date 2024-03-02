@@ -16,5 +16,6 @@ def number_of_subscribers(subreddit):
 # Testing the function
 if __name__ == '__main__':
     subreddit = input("Enter the subreddit name: ")
+    subreddit = subreddit.replace(" ", "")  # Remove spaces from the subreddit name
     print(number_of_subscribers(subreddit))
 
