@@ -9,7 +9,7 @@ def number_of_subscribers(subreddit):
     Args:
         subreddit (str): The name of the subreddit to query.
 
-    Returns:
+    Return:
         int: The number of subscribers to the subreddit, or 0 if
         the request fails or the subreddit does not exist.
     """
