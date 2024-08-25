@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # write a Bash script that configures an Nginx server to listen on port 80.
+# nginx like sport 80
 
-rm /etc/nginx/sites-enabled/default
-ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-service nginx restart
+apt-get update -y
+apt-get install -y nginx
+sudo service nginx enable
+sudo service nginx start
+
